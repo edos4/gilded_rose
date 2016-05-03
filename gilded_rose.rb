@@ -4,52 +4,65 @@ class GildedRose
     @items = items
   end
 
-  def update_quality()
+  def update_quality
     @items.each do |item|
-      if item.name != "Aged Brie" and item.name != "Backstage passes to a TAFKAL80ETC concert"
-        if item.quality > 0
-          if item.name != "Sulfuras, Hand of Ragnaros"
-            item.quality = item.quality - 1
-          end
-        end
+      update_sell_in(item)
+      calculate_quality(item) if valid_quality?(item)
+    end
+  end
+
+  private 
+
+  def update_sell_in(item)
+    item.sell_in -= 1 unless sulfuras?(item)
+  end
+
+  def calculate_quality(item)
+    if item.sell_in < 0 
+      if aged_brie?(item)
+        item.quality += 2
+      elsif backstage_pass?(item)
+        item.quality = 0
+      elsif conjured?(item) 
+        item.quality -= 4
       else
-        if item.quality < 50
-          item.quality = item.quality + 1
-          if item.name == "Backstage passes to a TAFKAL80ETC concert"
-            if item.sell_in < 11
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-            if item.sell_in < 6
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-          end
-        end
+        item.quality -= 2 unless sulfuras?(item)
       end
-      if item.name != "Sulfuras, Hand of Ragnaros"
-        item.sell_in = item.sell_in - 1
-      end
-      if item.sell_in < 0
-        if item.name != "Aged Brie"
-          if item.name != "Backstage passes to a TAFKAL80ETC concert"
-            if item.quality > 0
-              if item.name != "Sulfuras, Hand of Ragnaros"
-                item.quality = item.quality - 1
-              end
-            end
-          else
-            item.quality = item.quality - item.quality
-          end
-        else
-          if item.quality < 50
-            item.quality = item.quality + 1
-          end
-        end
+    else 
+      if aged_brie?(item)
+        item.quality += 1
+      elsif backstage_pass?(item)
+        item.quality += 1
+        item.quality += 1 if item.sell_in < 11
+        item.quality += 1 if item.sell_in < 6
+      elsif conjured?(item)
+        item.quality -= 2
+      else
+        item.quality -= 1 unless sulfuras?(item)
       end
     end
+  end
+
+  # Validations
+  def valid_quality?(item)
+    item.quality > 0 && item.quality < 50
+  end
+
+  # Item Identifiers
+  def sulfuras?(item)
+    item.name.include?("Sulfuras")
+  end
+
+  def backstage_pass?(item)
+    item.name.include?("Backstage passes")
+  end
+
+  def aged_brie?(item)
+    item.name.include?("Aged Brie")
+  end
+
+  def conjured?(item)
+    item.name.include?("Conjured")
   end
 end
 
