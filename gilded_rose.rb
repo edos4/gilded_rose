@@ -1,20 +1,26 @@
 class GildedRose
 
+  #def multiplier(item)
+  #  quality_change[item] * 2
+  #end
+
   def initialize(items)
     @items = items
   end
 
   def update_quality
     @items.each do |item|
-      update_sell_in(item)
-      calculate_quality(item) if valid_quality?(item)
+      unless sulfuras?(item)
+        update_sell_in(item)
+        calculate_quality(item) if valid_quality?(item)
+      end
     end
   end
 
   private 
 
   def update_sell_in(item)
-    item.sell_in -= 1 unless sulfuras?(item)
+    item.sell_in -= 1
   end
 
   def calculate_quality(item)
@@ -26,7 +32,7 @@ class GildedRose
       elsif conjured?(item) 
         item.quality -= 4
       else
-        item.quality -= 2 unless sulfuras?(item)
+        item.quality -= 2 
       end
     else 
       if aged_brie?(item)
@@ -38,7 +44,7 @@ class GildedRose
       elsif conjured?(item)
         item.quality -= 2
       else
-        item.quality -= 1 unless sulfuras?(item)
+        item.quality -= 1 
       end
     end
   end
