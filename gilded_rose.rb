@@ -12,60 +12,52 @@ class GildedRose
   def update_quality
     @items.each do |item|
       unless sulfuras?(item)
-        update_sell_in(item)
         calculate_quality(item) if valid_quality?(item)
+        update_sell_in(item)
       end
     end
   end
 
   private 
 
+  def calculate_quality(item)
+    case item_name(item).include?
+      when /aged brie/ then quality_change(item, 1) 
+      when /backstage passes/ then pass_quality_change(item) 
+      when /conjured/ then quality_change(item, -2)
+      when  // then quality_change(item, -1) 
+    end
+  end
+
+  def quality_change(item, amount)
+    total = item.sell_in <= 0 ? amount * 2 : amount
+    item.quality += total
+  end
+
+  def pass_quality_change(item)
+    if item.sell_in <= 0
+      item.quality = 0
+    else
+      item.quality += 1
+      item.quality += 1 if item.sell_in < 11
+      item.quality += 1 if item.sell_in < 6
+    end
+  end
+
   def update_sell_in(item)
     item.sell_in -= 1
   end
 
-  def calculate_quality(item)
-    if item.sell_in < 0 
-      if special?(item)
-        item.quality += @specials.detect{|h| h[:name].include? item.name}[:after_due]
-      elsif backstage_pass?(item)
-        item.quality = 0
-      else
-        item.quality -= 2 
-      end
-    else 
-      if special?(item)
-        item.quality += @specials.detect{|h| h[:name].include? item.name}[:before_due]
-      elsif backstage_pass?(item)
-        item.quality += 1
-        item.quality += 1 if item.sell_in < 11
-        item.quality += 1 if item.sell_in < 6
-      else
-        item.quality -= 1 
-      end
-    end
-  end
-
-  # Validations
   def valid_quality?(item)
     item.quality > 0 && item.quality < 50
   end
 
-  # Item Identifiers
+  def item_name(item)
+    item.name.downcase
+  end
+
   def sulfuras?(item)
-    item.name.include?("Sulfuras")
-  end
-
-  def backstage_pass?(item)
-    item.name.include?("Backstage passes")
-  end
-
-  def aged_brie?(item)
-    item.name.include?("Aged Brie")
-  end
-
-  def conjured?(item)
-    item.name.include?("Conjured")
+    item_name(item).include?("sulfuras")
   end
 
   def special?(item)
