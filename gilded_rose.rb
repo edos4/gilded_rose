@@ -21,7 +21,7 @@ class GildedRose
   private 
 
   def calculate_quality(item)
-    case item_name(item).include?
+    case item_name(item)
       when /aged brie/ then quality_change(item, 1) 
       when /backstage passes/ then pass_quality_change(item) 
       when /conjured/ then quality_change(item, -2)
@@ -30,17 +30,14 @@ class GildedRose
   end
 
   def quality_change(item, amount)
-    total = item.sell_in <= 0 ? amount * 2 : amount
-    item.quality += total
+    item.quality += item.sell_in <= 0 ? amount * 2 : amount
   end
 
   def pass_quality_change(item)
     if item.sell_in <= 0
       item.quality = 0
     else
-      item.quality += 1
-      item.quality += 1 if item.sell_in < 11
-      item.quality += 1 if item.sell_in < 6
+      item.quality += (item.sell_in < 6 ? 3 : item.sell_in.between?(6,11) ? 2 : 1)
     end
   end
 
