@@ -1,12 +1,6 @@
 class GildedRose
-  attr_accessor :specials
-
   def initialize(items)
     @items = items
-    @specials = [
-      {name: "Aged Brie", before_due: 1, after_due: 2},
-      {name: "Conjured", before_due: -2, after_due: -4},
-    ]
   end
 
   def update_quality
@@ -56,10 +50,6 @@ class GildedRose
   def sulfuras?(item)
     item_name(item).include?("sulfuras")
   end
-
-  def special?(item)
-    @specials.detect{|h| h[:name].include? item.name}.nil? ? false : true
-  end 
 end
 
 class Item
