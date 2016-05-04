@@ -1,11 +1,12 @@
 class GildedRose
-
-  #def multiplier(item)
-  #  quality_change[item] * 2
-  #end
+  attr_accessor :specials
 
   def initialize(items)
     @items = items
+    @specials = [
+      {name: "Aged Brie", before_due: 1, after_due: 2},
+      {name: "Conjured", before_due: -2, after_due: -4},
+    ]
   end
 
   def update_quality
@@ -25,24 +26,20 @@ class GildedRose
 
   def calculate_quality(item)
     if item.sell_in < 0 
-      if aged_brie?(item)
-        item.quality += 2
+      if special?(item)
+        item.quality += @specials.detect{|h| h[:name].include? item.name}[:after_due]
       elsif backstage_pass?(item)
         item.quality = 0
-      elsif conjured?(item) 
-        item.quality -= 4
       else
         item.quality -= 2 
       end
     else 
-      if aged_brie?(item)
-        item.quality += 1
+      if special?(item)
+        item.quality += @specials.detect{|h| h[:name].include? item.name}[:before_due]
       elsif backstage_pass?(item)
         item.quality += 1
         item.quality += 1 if item.sell_in < 11
         item.quality += 1 if item.sell_in < 6
-      elsif conjured?(item)
-        item.quality -= 2
       else
         item.quality -= 1 
       end
@@ -70,6 +67,10 @@ class GildedRose
   def conjured?(item)
     item.name.include?("Conjured")
   end
+
+  def special?(item)
+    @specials.detect{|h| h[:name].include? item.name}.nil? ? false : true
+  end 
 end
 
 class Item
